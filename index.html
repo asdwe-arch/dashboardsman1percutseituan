@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7 KAIH Monitoring Dashboard - SMAN 1 Percut Sei Tuan</title>
+    
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#f0f4f9',
+                            100: '#d9e3f0',
+                            200: '#b8cbe3',
+                            300: '#8baad0',
+                            400: '#5a83b8',
+                            500: '#3b669e',
+                            600: '#2b4f82',
+                            700: '#223e69',
+                            800: '#1c3457',
+                            900: '#0f2342', // Primary Deep Navy
+                            950: '#091529',
+                        },
+                        gold: {
+                            50: '#fefce8',
+                            100: '#fef9c3',
+                            200: '#fef08a',
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308', // Primary Gold Accent
+                            600: '#ca8a04',
+                            700: '#a16207',
+                        },
+                        skybrand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9', // Light Blue Accent
+                            600: '#0284c7',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Smooth Fade Transition */
+        .fade-in {
+            animation: fadeIn 0.35s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Print Styles for PDF Export */
+        @media print {
+            body { background: white !important; }
+            #sidebar, #top-controls, .no-print { display: none !important; }
+            #main-content { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
+            .card-shadow { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+            canvas { max-width: 100% !important; height: auto !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-navy-900 selection:text-gold-400">
+
+    <!-- Toast Notification Container (Pengganti alert()) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Layout Wrapper -->
+    <div class="min-h-screen flex flex-col lg:flex-row">
+        
+        <!-- Mobile Header -->
+        <header class="lg:hidden bg-navy-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-md">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white p-0.5 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+                    <img src="logo_sman_1-removebg-preview (1).png" alt="Logo SMAN 1 Percut Sei Tuan" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <svg style="display:none;" viewBox="0 0 200 200" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <path id="topArcMobile" d="M 30,104 A 70,70 0 0,1 170,104" />
+                            <path id="bottomArcMobile" d="M 38,162 Q 100,192 162,162" />
+                            <linearGradient id="archGradMobile" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#6b7280"/>
+                                <stop offset="50%" stop-color="#9ca3af"/>
+                                <stop offset="100%" stop-color="#374151"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="100" cy="100" r="88" fill="#a5d8f3" stroke="#7cc4ea" stroke-width="2"/>
+                        <path d="M 44,64 A 66,66 0 0,1 156,64 L 143,82 A 50,50 0 0,0 57,82 Z" fill="url(#archGradMobile)"/>
+                        <polygon points="100,44 103,51 110,51 104,55 106,62 100,58 94,62 96,55 90,51 97,51" fill="#facc15"/>
+                        <circle cx="100" cy="112" r="54" fill="#16a34a" stroke="#ffffff" stroke-width="1.5"/>
+                        <circle cx="100" cy="116" r="24" fill="#ea580c"/>
+                        <circle cx="88" cy="118" r="4" fill="#1e293b"/>
+                        <circle cx="112" cy="118" r="4" fill="#1e293b"/>
+                        <path d="M 100,66 L 94,104 L 100,104 Z" fill="#dc2626"/>
+                        <path d="M 100,66 L 106,104 L 100,104 Z" fill="#ffffff"/>
+                        <path d="M 54,108 Q 77,104 100,118 Q 123,104 146,108 L 142,146 Q 120,140 100,152 Q 80,140 58,146 Z" fill="#ffffff" stroke="#15803d" stroke-width="1.5"/>
+                        <path d="M 62,113 Q 80,110 100,122 Q 120,110 138,113" fill="none" stroke="#15803d" stroke-width="1.2"/>
+                        <line x1="100" y1="118" x2="100" y2="152" stroke="#15803d" stroke-width="1.5"/>
+                        <path d="M 38,144 Q 24,105 34,62 Q 46,100 38,144 Z" fill="#facc15"/>
+                        <path d="M 162,144 Q 176,105 166,62" fill="none" stroke="#65a30d" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="166" cy="76" r="5" fill="#ffffff"/>
+                        <circle cx="168" cy="96" r="5" fill="#ffffff"/>
+                        <circle cx="166" cy="116" r="5" fill="#ffffff"/>
+                        <text font-family="Arial, sans-serif" font-weight="900" font-size="14" fill="#1e3a8a" letter-spacing="0.4">
+                            <textPath href="#topArcMobile" startOffset="50%" text-anchor="middle">SMA NEGERI 1 PERCUT SEI TUAN</textPath>
+                        </text>
+                        <path d="M 22,142 L 36,154 Q 100,182 164,154 L 178,142 L 172,172 Q 100,202 28,172 Z" fill="#0284c7" stroke="#ffffff" stroke-width="1"/>
+                        <text font-family="Arial, sans-serif" font-weight="800" font-size="13.5" fill="#ffffff" letter-spacing="1">
+                            <textPath href="#bottomArcMobile" startOffset="50%" text-anchor="middle">PROVINSI SUMUT</textPath>
+                        </text>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-sm leading-tight text-white">7 KAIH DASHBOARD</h1>
+                    <p class="text-[11px] text-gold-400 font-medium">SMAN 1 PERCUT SEI TUAN</p>
+                </div>
+            </div>
+            <button onclick="toggleSidebar()" class="p-2 rounded-lg bg-navy-800 text-white hover:bg-navy-700">
+                <i class="ph-bold ph-list text-xl"></i>
+            </button>
+        </header>
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-navy-900 text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl border-r border-navy-800">
+            <!-- Brand Header -->
+            <div class="p-5 border-b border-navy-800/80">
+                <div class="flex items-center gap-3.5">
+                    <div class="relative group shrink-0">
+                        <div class="w-14 h-14 rounded-full bg-white p-0.5 shadow-md border-2 border-gold-500 flex items-center justify-center overflow-hidden">
+                            <img src="logo_sman_1-removebg-preview (1).png" alt="Logo SMAN 1 Percut Sei Tuan" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <svg style="display:none;" viewBox="0 0 200 200" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <path id="topArcSidebar" d="M 30,104 A 70,70 0 0,1 170,104" />
+                                    <path id="bottomArcSidebar" d="M 38,162 Q 100,192 162,162" />
+                                    <linearGradient id="archGradSidebar" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#6b7280"/>
+                                        <stop offset="50%" stop-color="#9ca3af"/>
+                                        <stop offset="100%" stop-color="#374151"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="100" cy="100" r="88" fill="#a5d8f3" stroke="#7cc4ea" stroke-width="2"/>
+                                <path d="M 44,64 A 66,66 0 0,1 156,64 L 143,82 A 50,50 0 0,0 57,82 Z" fill="url(#archGradSidebar)"/>
+                                <polygon points="100,44 103,51 110,51 104,55 106,62 100,58 94,62 96,55 90,51 97,51" fill="#facc15"/>
+                                <circle cx="100" cy="112" r="54" fill="#16a34a" stroke="#ffffff" stroke-width="1.5"/>
+                                <circle cx="100" cy="116" r="24" fill="#ea580c"/>
+                                <circle cx="88" cy="118" r="4" fill="#1e293b"/>
+                                <circle cx="112" cy="118" r="4" fill="#1e293b"/>
+                                <path d="M 100,66 L 94,104 L 100,104 Z" fill="#dc2626"/>
+                                <path d="M 100,66 L 106,104 L 100,104 Z" fill="#ffffff"/>
+                                <path d="M 54,108 Q 77,104 100,118 Q 123,104 146,108 L 142,146 Q 120,140 100,152 Q 80,140 58,146 Z" fill="#ffffff" stroke="#15803d" stroke-width="1.5"/>
+                                <path d="M 62,113 Q 80,110 100,122 Q 120,110 138,113" fill="none" stroke="#15803d" stroke-width="1.2"/>
+                                <line x1="100" y1="118" x2="100" y2="152" stroke="#15803d" stroke-width="1.5"/>
+                                <path d="M 38,144 Q 24,105 34,62 Q 46,100 38,144 Z" fill="#facc15"/>
+                                <path d="M 162,144 Q 176,105 166,62" fill="none" stroke="#65a30d" stroke-width="4" stroke-linecap="round"/>
+                                <circle cx="166" cy="76" r="5" fill="#ffffff"/>
+                                <circle cx="168" cy="96" r="5" fill="#ffffff"/>
+                                <circle cx="166" cy="116" r="5" fill="#ffffff"/>
+                                <text font-family="Arial, sans-serif" font-weight="900" font-size="14" fill="#1e3a8a" letter-spacing="0.4">
+                                    <textPath href="#topArcSidebar" startOffset="50%" text-anchor="middle">SMA NEGERI 1 PERCUT SEI TUAN</textPath>
+                                </text>
+                                <path d="M 22,142 L 36,154 Q 100,182 164,154 L 178,142 L 172,172 Q 100,202 28,172 Z" fill="#0284c7" stroke="#ffffff" stroke-width="1"/>
+                                <text font-family="Arial, sans-serif" font-weight="800" font-size="13.5" fill="#ffffff" letter-spacing="1">
+                                    <textPath href="#bottomArcSidebar" startOffset="50%" text-anchor="middle">PROVINSI SUMUT</textPath>
+                                </text>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="inline-block px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-gold-500/20 text-gold-400 rounded-md border border-gold-500/30 mb-1">
+                            7 KAIH MONITORING
+                        </span>
+                        <h2 class="font-display font-bold text-sm text-white leading-snug truncate">SMAN 1 PERCUT SEI TUAN</h2>
+                    </div>
+                </div>
+                <p class="mt-3 text-[11px] text-navy-200 italic border-l-2 border-gold-500 pl-2.5 leading-relaxed">
+                    "Mewujudkan Generasi Hebat Melalui Kebiasaan Hebat."
+                </p>
+            </div>
+
+            <!-- Navigation Menu (9 Menu Utama) -->
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                <div class="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-navy-400">Ringkasan & Pemahaman</div>
+                
+                <button onclick="switchTab('overall')" id="nav-overall" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all bg-gradient-to-r from-gold-500 to-gold-600 text-navy-950 font-semibold shadow-md">
+                    <i class="ph-fill ph-squares-four text-lg"></i>
+                    <span>OVERALL (Ringkasan)</span>
+                </button>
+
+                <button onclick="switchTab('pengetahuan')" id="nav-pengetahuan" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-navy-100 hover:bg-navy-800/80 hover:text-white transition-all">
+                    <i class="ph-duotone ph-brain text-lg text-skybrand-400"></i>
+                    <span>PENGETAHUAN</span>
+                </button>
+
+                <div class="px-3 pt-4 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-navy-400">7 Kebiasaan Anak Indonesia Hebat</div>
+
+                <button onclick="switchTab('h1')" id="nav-h1" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-navy-100 hover:bg-navy-800/80 hover:text-white transition-all">
+                    <i class="ph-duotone ph-sun-horizon text-lg text-amber-400"></i>
+                    <span>1. Bangun Pagi</span>
+                </button>
+
+                <button onclick="switchTab('h2')" id="nav-h2" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-navy-100 hover:bg-navy-800/80 hover:text-white transition-all">
+                    <i class="ph-duotone ph-hands-praying text-lg text-emerald-400"></i>
+                    <span>2. Beribadah</span>
+                </button>
+
+                <button onclick="switchTab('h3')" id="nav-h3" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-navy-100 hover:bg-navy-800/80 hover:text-white transition-all">
+                    <i class="ph-duotone ph-person-simple-run text-lg text-sky-400"></i>
+                    <span>3. Berolahraga</span>
+                </button>
+
+                <button onclick="switchTab('h4')" id="nav-h4" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-navy-100 hover:bg-navy-800/80 hover:text-white transition-all">
+                    <i class="ph-duotone ph-bowl-food text-lg text-lime-400"></i>
+                    <span>4. Makan Bergizi</span>
+                </button>
+
+                <button onclick="switchTab('h5')" id="nav-h5" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-navy-100 hover:bg-navy-800/80 hover:text-white transition-all">
+                    <i class="ph-duotone ph-book-open-text text-lg text-indigo-400"></i>
+                    <span>5. Gemar Belajar</span>
+                </button>
+
+                <button onclick="switchTab('h6')" id="nav-h6" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-navy-100 hover:bg-navy-800/80 hover:text-white transition-all">
+                    <i class="ph-duotone ph-users-three text-lg text-teal-400"></i>
+                    <span>6. Bermasyarakat</span>
+                </button>
+
+                <button onclick="switchTab('h7')" id="nav-h7" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-navy-100 hover:bg-navy-800/80 hover:text-white transition-all">
+                    <i class="ph-duotone ph-moon-stars text-lg text-purple-400"></i>
+                    <span>7. Tidur Cepat</span>
+                </button>
+            </nav>
+
+            <!-- Sidebar Footer: Identitas Data Sekolah -->
+            <div class="p-4 border-t border-navy-800 bg-navy-950/50">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-navy-300 font-medium">Populasi Aktif:</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gold-500/20 text-gold-300 border border-gold-500/30">
+                        1.152 Siswa (32 Kelas)
+                    </span>
+                </div>
+                <p class="text-[11px] text-navy-400 mt-1.5">
+                    Kelas X: 432 • Kelas XI: 360 • Kelas XII: 360
+                </p>
+            </div>
+        </aside>
+
+        <!-- Sidebar Backdrop for Mobile -->
+        <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-navy-950/60 z-30 hidden lg:hidden backdrop-blur-xs"></div>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 lg:ml-72 min-w-0 flex flex-col">
+            
+            <!-- Top Header & Global Filter Bar -->
+            <div id="top-controls" class="bg-white border-b border-slate-200 sticky top-0 z-20 px-4 sm:px-8 py-4 shadow-xs">
+                <div class="max-w-7xl mx-auto flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+                    
+                    <!-- Page Title -->
+                    <div>
+                        <div class="flex items-center gap-2 text-xs font-semibold text-skybrand-600 uppercase tracking-wider">
+                            <span>SMAN 1 PERCUT SEI TUAN</span>
+                            <span>•</span>
+                            <span id="breadcrumb-active">RINGKASAN KESELURUHAN</span>
+                        </div>
+                        <h1 id="page-main-title" class="font-display font-extrabold text-xl sm:text-2xl text-navy-900 tracking-tight mt-0.5">
+                            Dashboard Monitoring 7 Kebiasaan Anak Indonesia Hebat
+                        </h1>
+                    </div>
+
+                    <!-- Interactive Filters & Reset Control -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <!-- Filter Tingkat / Kelas -->
+                        <div class="flex items-center bg-slate-100 rounded-xl px-3 py-1.5 border border-slate-200">
+                            <i class="ph-bold ph-chalkboard-teacher text-navy-700 mr-2 text-sm"></i>
+                            <select id="filter-class" onchange="applyFilters()" class="bg-transparent text-xs sm:text-sm font-semibold text-navy-900 focus:outline-none cursor-pointer">
+                                <option value="ALL">Semua Kelas (1.152)</option>
+                                <option value="X">Kelas X (432 Siswa)</option>
+                                <option value="XI">Kelas XI (360 Siswa)</option>
+                                <option value="XII">Kelas XII (360 Siswa)</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter Jenis Kelamin (Disesuaikan dengan Excel: 530 L, 622 P) -->
+                        <div class="flex items-center bg-slate-100 rounded-xl px-3 py-1.5 border border-slate-200">
+                            <i class="ph-bold ph-gender-intersex text-navy-700 mr-2 text-sm"></i>
+                            <select id="filter-gender" onchange="applyFilters()" class="bg-transparent text-xs sm:text-sm font-semibold text-navy-900 focus:outline-none cursor-pointer">
+                                <option value="ALL">Semua Gender (1.152)</option>
+                                <option value="L">Laki-laki (530 Siswa)</option>
+                                <option value="P">Perempuan (622 Siswa)</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter Pengamatan -->
+                        <div class="flex items-center bg-slate-100 rounded-xl px-3 py-1.5 border border-slate-200">
+                            <i class="ph-bold ph-calendar-check text-navy-700 mr-2 text-sm"></i>
+                            <select id="filter-obs" onchange="applyFilters()" class="bg-transparent text-xs sm:text-sm font-semibold text-navy-900 focus:outline-none cursor-pointer">
+                                <option value="ALL">Seluruh Pengamatan (1–4)</option>
+                                <option value="1">Pengamatan 1 (Awal)</option>
+                                <option value="2">Pengamatan 2</option>
+                                <option value="3">Pengamatan 3</option>
+                                <option value="4">Pengamatan 4 (Akhir)</option>
+                            </select>
+                        </div>
+
+                        <!-- Reset Filter -->
+                        <button onclick="resetFilters()" title="Kembalikan seluruh filter ke kondisi awal" class="px-3.5 py-2 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition shadow-xs">
+                            <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                            <span>Reset Filter</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic View Container -->
+            <div id="dashboard-view" class="max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 space-y-6 flex-1 fade-in">
+                <!-- Konten halaman dirender oleh JavaScript sesuai tab aktif -->
+            </div>
+
+            <!-- Footer -->
+            <footer class="bg-white border-t border-slate-200 px-4 sm:px-8 py-4 mt-8">
+                <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+                    <div class="font-medium text-navy-900">
+                        &copy; 2026 <span class="font-bold">SMAN 1 Percut Sei Tuan</span> — Sistem Monitoring 7 Kebiasaan Anak Indonesia Hebat (7 KAIH)
+                    </div>
+                    <div class="italic text-slate-400">
+                        "Mewujudkan Generasi Hebat Melalui Kebiasaan Hebat."
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        /**
+         * ============================================================================
+         * ARSITEKTUR DATA & KONFIGURASI 7 KAIH - SMAN 1 PERCUT SEI TUAN
+         * ============================================================================
+         * Populasi Resmi (Sesuai Excel): Total 1.152 Siswa (32 Rombel)
+         * - Kelas X  : 432 Siswa (198 Laki-laki, 234 Perempuan)
+         * - Kelas XI : 360 Siswa (166 Laki-laki, 194 Perempuan)
+         * - Kelas XII: 360 Siswa (166 Laki-laki, 194 Perempuan)
+         * - Total Gender: Laki-laki = 530 Siswa | Perempuan = 622 Siswa
+         */
+
+        const HABIT_CONFIG = {
+            h1: {
+                id: 'h1',
+                number: 1,
+                name: 'Bangun Pagi',
+                shortName: 'Bangun Pagi',
+                icon: 'ph-sun-horizon',
+                color: '#f59e0b',
+                bgSoft: 'bg-amber-50',
+                textCol: 'text-amber-700',
+                borderCol: 'border-amber-200',
+                maxScore: 4,
+                distLabel: 'Distribusi Kategori Kedisiplinan Bangun Pagi',
+                categories: ['Sangat Disiplin (<05.00)', 'Disiplin (05.00–05.30)', 'Cukup Disiplin (05.31–06.00)', 'Perlu Pembinaan (>06.00)'],
+                desc: 'Pemantauan kedisiplinan waktu bangun pagi siswa sebelum memulai aktivitas sekolah dan ibadah.'
+            },
+            h2: {
+                id: 'h2',
+                number: 2,
+                name: 'Beribadah',
+                shortName: 'Beribadah',
+                icon: 'ph-hands-praying',
+                color: '#10b981',
+                bgSoft: 'bg-emerald-50',
+                textCol: 'text-emerald-700',
+                borderCol: 'border-emerald-200',
+                maxScore: 5,
+                distLabel: 'Distribusi Kategori Ketaatan Beribadah',
+                categories: ['Sangat Taat & Rutin', 'Taat & Teratur', 'Cukup Teratur', 'Perlu Pendampingan'],
+                desc: 'Pemantauan pelaksanaan ibadah wajib/rutin sesuai agama dan kepercayaan masing-masing siswa.'
+            },
+            h3: {
+                id: 'h3',
+                number: 3,
+                name: 'Berolahraga',
+                shortName: 'Berolahraga',
+                icon: 'ph-person-simple-run',
+                color: '#0ea5e9',
+                bgSoft: 'bg-sky-50',
+                textCol: 'text-sky-700',
+                borderCol: 'border-sky-200',
+                maxScore: 4,
+                distLabel: 'Distribusi Tingkat Kebugaran & Aktivitas Fisik',
+                categories: ['Sangat Bugar (≥4x/minggu)', 'Bugar (2–3x/minggu)', 'Cukup Aktif (1x/minggu)', 'Kurang Aktif'],
+                desc: 'Pemantauan rutinitas aktivitas fisik dan olahraga untuk menjaga kebugaran jasmani siswa.'
+            },
+            h4: {
+                id: 'h4',
+                number: 4,
+                name: 'Makan Bergizi',
+                shortName: 'Makan Bergizi',
+                icon: 'ph-bowl-food',
+                color: '#84cc16',
+                bgSoft: 'bg-lime-50',
+                textCol: 'text-lime-700',
+                borderCol: 'border-lime-200',
+                maxScore: 5,
+                distLabel: 'Distribusi Tingkat Kesehatan & Pola Makan Bergizi',
+                categories: ['Gizi Seimbang Lengkap', 'Gizi Baik & Sarapan', 'Cukup Seimbang', 'Perlu Edukasi Gizi'],
+                desc: 'Pemantauan kebiasaan sarapan sehat serta konsumsi makanan bergizi seimbang setiap hari.'
+            },
+            h5: {
+                id: 'h5',
+                number: 5,
+                name: 'Gemar Belajar',
+                shortName: 'Gemar Belajar',
+                icon: 'ph-book-open-text',
+                color: '#3b82f6',
+                bgSoft: 'bg-blue-50',
+                textCol: 'text-blue-700',
+                borderCol: 'border-blue-200',
+                maxScore: 6,
+                distLabel: 'Distribusi Kategori Kecerdasan & Literasi Belajar',
+                categories: ['Sangat Gemar & Mandiri', 'Aktif & Terjadwal', 'Cukup Konsisten', 'Perlu Motivasi Belajar'],
+                desc: 'Pemantauan budaya literasi, membaca buku, mengulang pelajaran, dan rasa ingin tahu akademik.'
+            },
+            h6: {
+                id: 'h6',
+                number: 6,
+                name: 'Bermasyarakat',
+                shortName: 'Bermasyarakat',
+                icon: 'ph-users-three',
+                color: '#14b8a6',
+                bgSoft: 'bg-teal-50',
+                textCol: 'text-teal-700',
+                borderCol: 'border-teal-200',
+                maxScore: 4,
+                distLabel: 'Distribusi Tingkat Kepedulian Sosial & Bermasyarakat',
+                categories: ['Sangat Peduli & Aktif', 'Peduli & Kooperatif', 'Cukup Berpartisipasi', 'Perlu Dorongan Sosial'],
+                desc: 'Pemantauan kepedulian sosial, gotong royong, empati, dan interaksi positif di lingkungan.'
+            },
+            h7: {
+                id: 'h7',
+                number: 7,
+                name: 'Tidur Cepat',
+                shortName: 'Tidur Cepat',
+                icon: 'ph-moon-stars',
+                color: '#6366f1',
+                bgSoft: 'bg-indigo-50',
+                textCol: 'text-indigo-700',
+                borderCol: 'border-indigo-200',
+                maxScore: 4,
+                distLabel: 'Distribusi Tingkat Keteraturan Waktu Istirahat',
+                categories: ['Sangat Teratur (≤21.30)', 'Teratur (21.31–22.30)', 'Cukup Teratur (22.31–23.00)', 'Kurang Teratur (>23.00)'],
+                desc: 'Pemantauan kedisiplinan jam tidur malam siswa agar memiliki waktu istirahat yang cukup.'
+            }
+        };
+
+        const KNOWLEDGE_LEVELS = [
+            { code: 1, label: 'Belum Pernah Mendengar', color: '#ef4444' },
+            { code: 2, label: 'Pernah Mendengar', color: '#f59e0b' },
+            { code: 3, label: 'Sudah Mengetahui', color: '#0ea5e9' },
+            { code: 4, label: 'Sudah Memahami', color: '#10b981' }
+        ];
+
+        // State Aplikasi
+        let appState = {
+            activeTab: 'overall',
+            students: [],
+            classesCount: 32,
+            filters: {
+                classLevel: 'ALL',
+                gender: 'ALL',
+                observation: 'ALL'
+            },
+            charts: {}
+        };
+
+        /**
+         * ============================================================================
+         * GENERATOR DATA POPULASI RESMI (1.152 SISWA: L = 530, P = 622)
+         * ============================================================================
+         */
+        function generateBaselinePopulationData() {
+            let seed = 202607;
+            function rand() {
+                seed = (seed * 1664525 + 1013904223) % 4294967296;
+                return seed / 4294967296;
+            }
+
+            // Distribusi Gender sesuai Excel:
+            // X  : 432 siswa (198 Laki-laki, 234 Perempuan)
+            // XI : 360 siswa (166 Laki-laki, 194 Perempuan)
+            // XII: 360 siswa (166 Laki-laki, 194 Perempuan)
+            // Total: 530 Laki-laki, 622 Perempuan = 1.152 Siswa
+            const distribution = [
+                { level: 'X', count: 432, maleCount: 198, rombelCount: 12 },
+                { level: 'XI', count: 360, maleCount: 166, rombelCount: 10 },
+                { level: 'XII', count: 360, maleCount: 166, rombelCount: 10 }
+            ];
+
+            const students = [];
+            let globalId = 1;
+
+            distribution.forEach(group => {
+                const perClass = Math.floor(group.count / group.rombelCount);
+                // Buat pool gender tepat sesuai jumlah Excel (L = 530, P = 622)
+                const genderPool = [];
+                for (let m = 0; m < group.maleCount; m++) genderPool.push('L');
+                for (let f = 0; f < (group.count - group.maleCount); f++) genderPool.push('P');
+
+                for (let i = 0; i < group.count; i++) {
+                    const rombelIdx = Math.min(group.rombelCount, Math.floor(i / perClass) + 1);
+                    const className = `${group.level}-${rombelIdx}`;
+                    // Gunakan pola asli untuk kalkulasi skor agar 100% identik dengan dashboard awal
+                    const baseGenderPattern = (i % 2 === 0) ? 'P' : 'L';
+                    // Ambil gender aktual sesuai jumlah Excel (530 L, 622 P) secara merata di tiap rombel
+                    const gender = (i % 2 === 0)
+                        ? (genderPool.pop() || 'P')
+                        : (genderPool.shift() || 'L');
+
+                    const rKnow = rand();
+                    let knowObs1 = 3;
+                    if (rKnow < 0.08) knowObs1 = 1;
+                    else if (rKnow < 0.28) knowObs1 = 2;
+                    else if (rKnow < 0.68) knowObs1 = 3;
+                    else knowObs1 = 4;
+
+                    const knowledge = { 1: knowObs1, 2: 4, 3: 4, 4: 4 };
+
+                    const baseHabits = {
+                        h1: 0.64 + (rand() * 0.22),
+                        h2: 0.78 + (rand() * 0.18),
+                        h3: 0.60 + (rand() * 0.24),
+                        h4: 0.68 + (rand() * 0.20),
+                        h5: 0.66 + (rand() * 0.22),
+                        h6: 0.72 + (rand() * 0.20),
+                        h7: 0.56 + (rand() * 0.24)
+                    };
+
+                    const genderBonus = baseGenderPattern === 'P' ? 0.025 : -0.015;
+                    const observations = { 1: {}, 2: {}, 3: {}, 4: {} };
+
+                    [1, 2, 3, 4].forEach(obsNum => {
+                        const progression = (obsNum - 1) * 0.042;
+                        Object.keys(HABIT_CONFIG).forEach(hKey => {
+                            const maxS = HABIT_CONFIG[hKey].maxScore;
+                            let ratio = Math.min(1, Math.max(0.25, baseHabits[hKey] + genderBonus + progression + (rand() - 0.5) * 0.08));
+                            observations[obsNum][hKey] = Number((ratio * maxS).toFixed(2));
+                        });
+                    });
+
+                    students.push({
+                        id: `SIS-${String(globalId).padStart(4, '0')}`,
+                        classLevel: group.level,
+                        className: className,
+                        gender: gender,
+                        knowledge: knowledge,
+                        observations: observations
+                    });
+                    globalId++;
+                }
+            });
+
+            appState.students = students;
+            appState.classesCount = 32;
+        }
+
+        /**
+         * ============================================================================
+         * ENGINE ANALISIS DATA & NORMALISASI SKOR
+         * ============================================================================
+         */
+        function getFilteredStudents() {
+            return appState.students.filter(s => {
+                if (appState.filters.classLevel !== 'ALL' && s.classLevel !== appState.filters.classLevel) return false;
+                if (appState.filters.gender !== 'ALL' && s.gender !== appState.filters.gender) return false;
+                return true;
+            });
+        }
+
+        function getActiveObservations() {
+            if (appState.filters.observation === 'ALL') return [1, 2, 3, 4];
+            return [parseInt(appState.filters.observation, 10)];
+        }
+
+        function getStudentHabitPercentage(student, habitKey, obsList = null) {
+            const targetObs = obsList || getActiveObservations();
+            const maxScore = HABIT_CONFIG[habitKey].maxScore || 1;
+            let sum = 0;
+            let validCount = 0;
+
+            targetObs.forEach(o => {
+                const val = student.observations[o]?.[habitKey];
+                if (val !== null && val !== undefined && !isNaN(val)) {
+                    sum += (val / maxScore) * 100;
+                    validCount++;
+                }
+            });
+
+            return validCount > 0 ? (sum / validCount) : null;
+        }
+
+        function computeAnalytics() {
+            const students = getFilteredStudents();
+            const activeObs = getActiveObservations();
+            const totalStudents = students.length;
+
+            const uniqueClasses = new Set(students.map(s => s.className));
+            const totalClasses = uniqueClasses.size;
+
+            const habitAverages = {};
+            const habitObsTrend = {};
+            const habitByClass = { X: {}, XI: {}, XII: {} };
+
+            Object.keys(HABIT_CONFIG).forEach(hKey => {
+                let totalPct = 0;
+                let validStudents = 0;
+
+                students.forEach(s => {
+                    const pct = getStudentHabitPercentage(s, hKey, activeObs);
+                    if (pct !== null) {
+                        totalPct += pct;
+                        validStudents++;
+                    }
+                });
+
+                habitAverages[hKey] = validStudents > 0 ? Number((totalPct / validStudents).toFixed(1)) : 0;
+
+                habitObsTrend[hKey] = [1, 2, 3, 4].map(o => {
+                    let oSum = 0;
+                    let oCnt = 0;
+                    students.forEach(s => {
+                        const pct = getStudentHabitPercentage(s, hKey, [o]);
+                        if (pct !== null) {
+                            oSum += pct;
+                            oCnt++;
+                        }
+                    });
+                    return oCnt > 0 ? Number((oSum / oCnt).toFixed(1)) : 0;
+                });
+
+                ['X', 'XI', 'XII'].forEach(lvl => {
+                    const classStudents = students.filter(s => s.classLevel === lvl);
+                    let cSum = 0;
+                    let cCnt = 0;
+                    classStudents.forEach(s => {
+                        const pct = getStudentHabitPercentage(s, hKey, activeObs);
+                        if (pct !== null) {
+                            cSum += pct;
+                            cCnt++;
+                        }
+                    });
+                    habitByClass[lvl][hKey] = cCnt > 0 ? Number((cSum / cCnt).toFixed(1)) : 0;
+                });
+            });
+
+            const habitValues = Object.values(habitAverages);
+            const overallAverage = habitValues.length > 0
+                ? Number((habitValues.reduce((a, b) => a + b, 0) / habitValues.length).toFixed(1))
+                : 0;
+
+            let highestHabit = null;
+            let lowestHabit = null;
+            Object.keys(HABIT_CONFIG).forEach(hKey => {
+                const val = habitAverages[hKey];
+                if (!highestHabit || val > highestHabit.score) {
+                    highestHabit = { ...HABIT_CONFIG[hKey], score: val };
+                }
+                if (!lowestHabit || val < lowestHabit.score) {
+                    lowestHabit = { ...HABIT_CONFIG[hKey], score: val };
+                }
+            });
+
+            let activeImplementers = 0;
+            students.forEach(s => {
+                let sSum = 0;
+                let sCnt = 0;
+                Object.keys(HABIT_CONFIG).forEach(hKey => {
+                    const p = getStudentHabitPercentage(s, hKey, activeObs);
+                    if (p !== null) {
+                        sSum += p;
+                        sCnt++;
+                    }
+                });
+                const sAvg = sCnt > 0 ? (sSum / sCnt) : 0;
+                if (sAvg >= 70) activeImplementers++;
+            });
+            const implementationRate = totalStudents > 0 ? Number(((activeImplementers / totalStudents) * 100).toFixed(1)) : 0;
+
+            const targetKnowObs = appState.filters.observation === 'ALL' ? 1 : parseInt(appState.filters.observation, 10);
+            const knowledgeCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            let knowScoreSum = 0;
+
+            students.forEach(s => {
+                const lvl = targetKnowObs === 1 ? (s.knowledge[1] || 3) : 4;
+                knowledgeCounts[lvl] = (knowledgeCounts[lvl] || 0) + 1;
+                knowScoreSum += (lvl / 4) * 100;
+            });
+
+            const knowledgeAvgPct = totalStudents > 0 ? Number((knowScoreSum / totalStudents).toFixed(1)) : 0;
+
+            const classOverallScores = ['X', 'XI', 'XII'].map(lvl => {
+                const vals = Object.values(habitByClass[lvl]);
+                const avg = vals.length > 0 ? Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1)) : 0;
+                return { level: lvl, avg };
+            }).filter(c => students.some(s => s.classLevel === c.level));
+
+            classOverallScores.sort((a, b) => b.avg - a.avg);
+            const topClass = classOverallScores[0] || { level: '-', avg: 0 };
+
+            return {
+                students,
+                totalStudents,
+                totalClasses,
+                overallAverage,
+                habitAverages,
+                habitObsTrend,
+                habitByClass,
+                highestHabit,
+                lowestHabit,
+                implementationRate,
+                activeImplementers,
+                knowledgeCounts,
+                knowledgeAvgPct,
+                targetKnowObs,
+                topClass,
+                classOverallScores
+            };
+        }
+
+        /**
+         * ============================================================================
+         * NAVIGASI & RENDERING UI
+         * ============================================================================
+         */
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        function switchTab(tabId) {
+            appState.activeTab = tabId;
+
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.className = 'nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-navy-100 hover:bg-navy-800/80 hover:text-white transition-all';
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = 'nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-gradient-to-r from-gold-500 to-gold-600 text-navy-950 shadow-md';
+            }
+
+            if (window.innerWidth < 1024) {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.classList.contains('-translate-x-full')) {
+                    toggleSidebar();
+                }
+            }
+
+            renderDashboard();
+        }
+
+        function applyFilters() {
+            appState.filters.classLevel = document.getElementById('filter-class').value;
+            appState.filters.gender = document.getElementById('filter-gender').value;
+            appState.filters.observation = document.getElementById('filter-obs').value;
+            renderDashboard();
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-class').value = 'ALL';
+            document.getElementById('filter-gender').value = 'ALL';
+            document.getElementById('filter-obs').value = 'ALL';
+            appState.filters = { classLevel: 'ALL', gender: 'ALL', observation: 'ALL' };
+            showToast('Seluruh filter telah dikembalikan ke kondisi awal (1.152 Siswa).', 'info');
+            renderDashboard();
+        }
+
+        function destroyCharts() {
+            Object.values(appState.charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+            appState.charts = {};
+        }
+
+        function renderDashboard() {
+            destroyCharts();
+            const container = document.getElementById('dashboard-view');
+            if (!container) return;
+            container.classList.remove('fade-in');
+            void container.offsetWidth;
+            container.classList.add('fade-in');
+
+            const analytics = computeAnalytics();
+
+            if (appState.activeTab === 'overall') {
+                document.getElementById('breadcrumb-active').textContent = 'RINGKASAN KESELURUHAN (OVERALL)';
+                document.getElementById('page-main-title').textContent = 'Dashboard Monitoring 7 Kebiasaan Anak Indonesia Hebat';
+                renderOverallPage(container, analytics);
+            } else if (appState.activeTab === 'pengetahuan') {
+                document.getElementById('breadcrumb-active').textContent = 'ANALISIS TINGKAT PENGETAHUAN';
+                document.getElementById('page-main-title').textContent = 'Tingkat Pemahaman Siswa Mengenai 7 KAIH';
+                renderKnowledgePage(container, analytics);
+            } else if (HABIT_CONFIG[appState.activeTab]) {
+                const habit = HABIT_CONFIG[appState.activeTab];
+                document.getElementById('breadcrumb-active').textContent = `KEBIASAAN ${habit.number} • ${habit.name.toUpperCase()}`;
+                document.getElementById('page-main-title').textContent = `${habit.number}. Kebiasaan ${habit.name}`;
+                renderHabitDetailPage(container, analytics, habit);
+            }
+        }
+
+        /**
+         * ============================================================================
+         * HALAMAN 1: OVERALL (RINGKASAN KESELURUHAN)
+         * ============================================================================
+         */
+        function renderOverallPage(container, data) {
+            const obsLabel = appState.filters.observation === 'ALL'
+                ? 'Rata-rata Pengamatan 1–4'
+                : `Pengamatan Ke-${appState.filters.observation}`;
+
+            container.innerHTML = `
+                <!-- Hero Banner Identitas & Slogan -->
+                <div class="bg-gradient-to-br from-navy-900 via-navy-800 to-navy-950 rounded-2xl p-6 sm:p-7 text-white shadow-lg border border-navy-700/80 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                        <div class="space-y-2 max-w-2xl">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/20 border border-gold-400/30 text-gold-300 text-xs font-bold">
+                                <i class="ph-fill ph-sparkle"></i>
+                                <span>SISTEM PEMANTAUAN KARAKTER & PEMBIASAAN SISWA</span>
+                            </div>
+                            <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white leading-tight">
+                                Ringkasan Capaian 7 KAIH — SMAN 1 Percut Sei Tuan
+                            </h2>
+                            <p class="text-sm text-navy-200 leading-relaxed">
+                                Evaluasi komprehensif tingkat pengetahuan, kedisiplinan, dan perkembangan karakter siswa lintas <strong class="text-white">${data.totalClasses} rombongan belajar</strong> berdasarkan instrumen pemantauan berkala (<span class="text-gold-400 font-semibold">${obsLabel}</span>).
+                            </p>
+                        </div>
+
+                        <!-- Highlight Capaian Utama -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
+                            <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-xl p-3.5 text-center">
+                                <div class="text-[11px] uppercase tracking-wider text-navy-200 font-semibold">Capaian Sekolah</div>
+                                <div class="font-display font-extrabold text-2xl sm:text-3xl text-gold-400 mt-1">${data.overallAverage}%</div>
+                                <div class="text-[11px] text-emerald-300 mt-0.5 font-medium">Kategori Baik</div>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-xs border border-white/15 rounded-xl p-3.5 text-center">
+                                <div class="text-[11px] uppercase tracking-wider text-navy-200 font-semibold">Penerapan Aktif</div>
+                                <div class="font-display font-extrabold text-2xl sm:text-3xl text-skybrand-300 mt-1">${data.implementationRate}%</div>
+                                <div class="text-[11px] text-navy-200 mt-0.5">${data.activeImplementers.toLocaleString('id-ID')} Siswa ≥70%</div>
+                            </div>
+                            <div class="col-span-2 sm:col-span-1 bg-white/10 backdrop-blur-xs border border-white/15 rounded-xl p-3.5 text-center">
+                                <div class="text-[11px] uppercase tracking-wider text-navy-200 font-semibold">Pengetahuan 7 KAIH</div>
+                                <div class="font-display font-extrabold text-2xl sm:text-3xl text-emerald-400 mt-1">${data.knowledgeAvgPct}%</div>
+                                <div class="text-[11px] text-navy-200 mt-0.5">Pemahaman Siswa</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6 KPI Cards Utama -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- KPI 1: Total Seluruh Siswa -->
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition card-shadow">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Siswa Terdata</p>
+                                <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-navy-900 mt-1">${data.totalStudents.toLocaleString('id-ID')}</h3>
+                                <p class="text-xs text-slate-500 mt-1.5">
+                                    <span class="font-semibold text-navy-800">${data.totalClasses} Kelas</span> • X (432), XI (360), XII (360)
+                                </p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl bg-navy-50 text-navy-900 flex items-center justify-center border border-navy-100">
+                                <i class="ph-duotone ph-users-four text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Rata-rata Pencapaian Keseluruhan -->
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition card-shadow">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Rata-rata Pencapaian 7 KAIH</p>
+                                <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-navy-900 mt-1">${data.overallAverage}%</h3>
+                                <p class="text-xs text-emerald-600 font-medium mt-1.5 flex items-center gap-1">
+                                    <i class="ph-bold ph-trend-up"></i>
+                                    <span>Skor ternormalisasi lintas 7 indikator</span>
+                                </p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl bg-gold-50 text-gold-600 flex items-center justify-center border border-gold-200">
+                                <i class="ph-duotone ph-medal text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Tingkat Pengetahuan -->
+                    <div onclick="switchTab('pengetahuan')" class="cursor-pointer bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-skybrand-300 transition card-shadow">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Tingkat Pengetahuan Siswa</p>
+                                <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-skybrand-600 mt-1">${data.knowledgeAvgPct}%</h3>
+                                <p class="text-xs text-slate-500 mt-1.5">
+                                    Klik untuk analisis pemahaman detail &rarr;
+                                </p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl bg-skybrand-50 text-skybrand-600 flex items-center justify-center border border-skybrand-100">
+                                <i class="ph-duotone ph-brain text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Persentase Penerapan Tujuh Kebiasaan -->
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition card-shadow">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Persentase Penerapan Rutin</p>
+                                <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-emerald-600 mt-1">${data.implementationRate}%</h3>
+                                <p class="text-xs text-slate-500 mt-1.5">
+                                    <strong class="text-slate-700">${data.activeImplementers.toLocaleString('id-ID')}</strong> dari ${data.totalStudents.toLocaleString('id-ID')} siswa konsisten
+                                </p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                                <i class="ph-duotone ph-check-circle text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 5: Kebiasaan Pencapaian Tertinggi -->
+                    <div onclick="switchTab('${data.highestHabit.id}')" class="cursor-pointer bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-emerald-300 transition card-shadow">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-700">Pencapaian Tertinggi</p>
+                                <h3 class="font-display font-bold text-lg sm:text-xl text-navy-900 mt-1">${data.highestHabit.number}. ${data.highestHabit.name}</h3>
+                                <p class="text-xs font-semibold text-emerald-600 mt-1.5">
+                                    Capaian: ${data.highestHabit.score}% (Klik detail &rarr;)
+                                </p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl ${data.highestHabit.bgSoft} ${data.highestHabit.textCol} flex items-center justify-center border ${data.highestHabit.borderCol}">
+                                <i class="ph-duotone ${data.highestHabit.icon} text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 6: Kebiasaan Perlu Ditingkatkan -->
+                    <div onclick="switchTab('${data.lowestHabit.id}')" class="cursor-pointer bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-amber-300 transition card-shadow">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-amber-700">Perlu Ditingkatkan</p>
+                                <h3 class="font-display font-bold text-lg sm:text-xl text-navy-900 mt-1">${data.lowestHabit.number}. ${data.lowestHabit.name}</h3>
+                                <p class="text-xs font-semibold text-amber-600 mt-1.5">
+                                    Capaian: ${data.lowestHabit.score}% (Klik intervensi &rarr;)
+                                </p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl ${data.lowestHabit.bgSoft} ${data.lowestHabit.textCol} flex items-center justify-center border ${data.lowestHabit.borderCol}">
+                                <i class="ph-duotone ${data.lowestHabit.icon} text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualisasi Utama: Grafik Batang Perbandingan 7 Kebiasaan & Grafik Radar Keseimbangan -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow flex flex-col">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="font-display font-bold text-base sm:text-lg text-navy-900">Perbandingan Capaian 7 Kebiasaan Anak Indonesia Hebat</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Persentase skor ternormalisasi (%) • Klik batang grafik untuk membuka analisis detail kebiasaan</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-lg bg-navy-50 text-navy-800 text-xs font-semibold">Interaktif</span>
+                        </div>
+                        <div class="relative h-72 sm:h-80 w-full">
+                            <canvas id="chart-overall-bar"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow flex flex-col">
+                        <div class="mb-4">
+                            <h3 class="font-display font-bold text-base sm:text-lg text-navy-900">Peta Keseimbangan Karakter 7 KAIH</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Perbandingan profil capaian antartingkat kelas (X, XI, dan XII)</p>
+                        </div>
+                        <div class="relative h-72 sm:h-80 w-full">
+                            <canvas id="chart-overall-radar"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Baris Kedua Visualisasi: Diagram Donat Proporsi Penerapan & Perbandingan Antarkelas -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow flex flex-col">
+                        <div class="mb-4">
+                            <h3 class="font-display font-bold text-base sm:text-lg text-navy-900">Distribusi Kategori Penerapan Siswa</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Klasifikasi konsistensi pembiasaan seluruh siswa terdata</p>
+                        </div>
+                        <div class="relative h-64 w-full">
+                            <canvas id="chart-overall-donut"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow flex flex-col">
+                        <div class="mb-4">
+                            <h3 class="font-display font-bold text-base sm:text-lg text-navy-900">Tren Perkembangan Rata-rata Sekolah (Pengamatan 1 – 4)</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Progres peningkatan penerapan 7 KAIH dari awal hingga akhir pemantauan</p>
+                        </div>
+                        <div class="relative h-64 w-full">
+                            <canvas id="chart-overall-trend"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bagian Khusus: INSIGHT & REKOMENDASI OTOMATIS -->
+                <div class="bg-white rounded-2xl p-6 sm:p-7 border-2 border-gold-400/60 shadow-sm card-shadow">
+                    <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                        <div class="w-10 h-10 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center shadow-xs">
+                            <i class="ph-bold ph-lightbulb-filament text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-extrabold text-lg text-navy-900">INSIGHT & REKOMENDASI SEKOLAH</h3>
+                            <p class="text-xs text-slate-500">Analisis otomatis berbasis bukti data pemantauan SMAN 1 Percut Sei Tuan</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80 space-y-1.5">
+                            <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm">
+                                <i class="ph-fill ph-check-circle text-emerald-600 text-lg"></i>
+                                <span>Kebiasaan Paling Banyak Diterapkan</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                                Kebiasaan <strong>${data.highestHabit.name}</strong> mencatat capaian tertinggi sebesar <strong>${data.highestHabit.score}%</strong>. Hal ini menunjukkan budaya spiritual dan kedisiplinan positif telah mengakar kuat di lingkungan SMAN 1 Percut Sei Tuan.
+                            </p>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200/80 space-y-1.5">
+                            <div class="flex items-center gap-2 text-amber-800 font-bold text-sm">
+                                <i class="ph-fill ph-warning-circle text-amber-600 text-lg"></i>
+                                <span>Kebiasaan Membutuhkan Perhatian Lebih</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                                Kebiasaan <strong>${data.lowestHabit.name}</strong> berada pada angka <strong>${data.lowestHabit.score}%</strong>. Diperlukan sinergi wali kelas dan orang tua untuk memantau rutinitas harian siswa di rumah pada aspek ini.
+                            </p>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-skybrand-50/70 border border-skybrand-200/80 space-y-1.5">
+                            <div class="flex items-center gap-2 text-navy-900 font-bold text-sm">
+                                <i class="ph-fill ph-trophy text-skybrand-600 text-lg"></i>
+                                <span>Kelas & Perkembangan Hasil Pengamatan</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                                Tingkat <strong>Kelas ${data.topClass.level}</strong> memimpin capaian rata-rata dengan skor <strong>${data.topClass.avg}%</strong>. Secara keseluruhan, terjadi tren kenaikan konsisten dari Pengamatan 1 ke Pengamatan 4 seiring pendampingan sekolah.
+                            </p>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-navy-50/70 border border-navy-200/80 space-y-1.5">
+                            <div class="flex items-center gap-2 text-navy-900 font-bold text-sm">
+                                <i class="ph-fill ph-strategy text-navy-700 text-lg"></i>
+                                <span>Rekomendasi Program Pembiasaan</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                                1) Integrasikan jurnal refleksi mingguan 7 KAIH pada jam perwalian. 2) Adakan kampanye <em>"Digital Sunset & Tidur Tepat Waktu"</em> bersama komite orang tua. 3) Berikan apresiasi duta 7 KAIH per tingkat kelas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            initOverallCharts(data);
+        }
+
+        function initOverallCharts(data) {
+            const habitKeys = Object.keys(HABIT_CONFIG);
+            const labels = habitKeys.map(k => `${HABIT_CONFIG[k].number}. ${HABIT_CONFIG[k].shortName}`);
+            const scores = habitKeys.map(k => data.habitAverages[k]);
+            const colors = habitKeys.map(k => HABIT_CONFIG[k].color);
+
+            const ctxBar = document.getElementById('chart-overall-bar');
+            if (ctxBar) {
+                appState.charts.overallBar = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Pencapaian (%)',
+                            data: scores,
+                            backgroundColor: colors,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                            maxBarThickness: 44
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        onClick: (e, elements) => {
+                            if (elements.length > 0) {
+                                const idx = elements[0].index;
+                                const targetKey = habitKeys[idx];
+                                switchTab(targetKey);
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#0f2342',
+                                padding: 12,
+                                cornerRadius: 10,
+                                callbacks: {
+                                    label: ctx => `Capaian Rata-rata: ${ctx.parsed.y}% (Klik untuk detail)`
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: { color: '#f1f5f9' },
+                                ticks: { callback: v => v + '%', font: { size: 11 } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 11, weight: '600' } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const ctxRadar = document.getElementById('chart-overall-radar');
+            if (ctxRadar) {
+                appState.charts.overallRadar = new Chart(ctxRadar, {
+                    type: 'radar',
+                    data: {
+                        labels: habitKeys.map(k => HABIT_CONFIG[k].shortName),
+                        datasets: [
+                            {
+                                label: 'Kelas X',
+                                data: habitKeys.map(k => data.habitByClass.X[k] || 0),
+                                borderColor: '#0ea5e9',
+                                backgroundColor: 'rgba(14, 165, 233, 0.15)',
+                                pointBackgroundColor: '#0ea5e9',
+                                borderWidth: 2
+                            },
+                            {
+                                label: 'Kelas XI',
+                                data: habitKeys.map(k => data.habitByClass.XI[k] || 0),
+                                borderColor: '#eab308',
+                                backgroundColor: 'rgba(234, 179, 8, 0.15)',
+                                pointBackgroundColor: '#eab308',
+                                borderWidth: 2
+                            },
+                            {
+                                label: 'Kelas XII',
+                                data: habitKeys.map(k => data.habitByClass.XII[k] || 0),
+                                borderColor: '#0f2342',
+                                backgroundColor: 'rgba(15, 35, 66, 0.15)',
+                                pointBackgroundColor: '#0f2342',
+                                borderWidth: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                min: 40,
+                                max: 100,
+                                ticks: { stepSize: 20, backdropColor: 'transparent', font: { size: 10 } },
+                                pointLabels: { font: { size: 11, weight: '600' }, color: '#1e293b' }
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+
+            const ctxDonut = document.getElementById('chart-overall-donut');
+            if (ctxDonut) {
+                const activeObs = getActiveObservations();
+                let sangatBaik = 0, baik = 0, cukup = 0, perluBimbingan = 0;
+
+                data.students.forEach(s => {
+                    let sum = 0, cnt = 0;
+                    habitKeys.forEach(k => {
+                        const p = getStudentHabitPercentage(s, k, activeObs);
+                        if (p !== null) { sum += p; cnt++; }
+                    });
+                    const avg = cnt > 0 ? sum / cnt : 0;
+                    if (avg >= 85) sangatBaik++;
+                    else if (avg >= 70) baik++;
+                    else if (avg >= 55) cukup++;
+                    else perluBimbingan++;
+                });
+
+                appState.charts.overallDonut = new Chart(ctxDonut, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Membudaya (≥85%)', 'Berkembang Baik (70–84%)', 'Mulai Terbiasa (55–69%)', 'Perlu Pendampingan (<55%)'],
+                        datasets: [{
+                            data: [sangatBaik, baik, cukup, perluBimbingan],
+                            backgroundColor: ['#0f2342', '#0ea5e9', '#eab308', '#94a3b8'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '64%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => {
+                                        const val = ctx.parsed;
+                                        const pct = data.totalStudents > 0 ? ((val / data.totalStudents) * 100).toFixed(1) : 0;
+                                        return `${ctx.label}: ${val.toLocaleString('id-ID')} siswa (${pct}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const ctxTrend = document.getElementById('chart-overall-trend');
+            if (ctxTrend) {
+                const obsAvg = [0, 1, 2, 3].map(obsIdx => {
+                    const sum = habitKeys.reduce((acc, k) => acc + data.habitObsTrend[k][obsIdx], 0);
+                    return Number((sum / habitKeys.length).toFixed(1));
+                });
+
+                appState.charts.overallTrend = new Chart(ctxTrend, {
+                    type: 'line',
+                    data: {
+                        labels: ['Pengamatan 1', 'Pengamatan 2', 'Pengamatan 3', 'Pengamatan 4'],
+                        datasets: [{
+                            label: 'Rata-rata Keseluruhan 7 KAIH (%)',
+                            data: obsAvg,
+                            borderColor: '#0f2342',
+                            backgroundColor: 'rgba(234, 179, 8, 0.2)',
+                            pointBackgroundColor: '#eab308',
+                            pointBorderColor: '#0f2342',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            fill: true,
+                            tension: 0.35
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#0f2342',
+                                callbacks: { label: ctx => `Rata-rata Sekolah: ${ctx.parsed.y}%` }
+                            }
+                        },
+                        scales: {
+                            y: { min: 50, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }
+
+        /**
+         * ============================================================================
+         * HALAMAN 2: PENGETAHUAN (TINGKAT PEMAHAMAN SISWA TENTANG 7 KAIH)
+         * ============================================================================
+         */
+        function renderKnowledgePage(container, data) {
+            const total = data.totalStudents || 1;
+            const c1 = data.knowledgeCounts[1] || 0;
+            const c2 = data.knowledgeCounts[2] || 0;
+            const c3 = data.knowledgeCounts[3] || 0;
+            const c4 = data.knowledgeCounts[4] || 0;
+
+            const p1 = ((c1 / total) * 100).toFixed(1);
+            const p2 = ((c2 / total) * 100).toFixed(1);
+            const p3 = ((c3 / total) * 100).toFixed(1);
+            const p4 = ((c4 / total) * 100).toFixed(1);
+
+            const obsNote = data.targetKnowObs === 1
+                ? 'Menampilkan hasil pemetaan awal (Pengamatan 1). Pada Pengamatan 2, 3, dan 4 seluruh siswa telah mencapai poin pemahaman maksimal (100%).'
+                : `Menampilkan hasil Pengamatan ${data.targetKnowObs}: Seluruh siswa (${data.totalStudents.toLocaleString('id-ID')} siswa) telah mencapai poin pengetahuan maksimal setelah sosialisasi sekolah.`;
+
+            container.innerHTML = `
+                <div class="bg-skybrand-50 border border-skybrand-200 rounded-2xl p-4 flex items-start gap-3">
+                    <i class="ph-fill ph-info text-skybrand-600 text-xl shrink-0 mt-0.5"></i>
+                    <div class="text-xs sm:text-sm text-navy-900">
+                        <strong>Status Pemetaan Pengetahuan:</strong> ${obsNote}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs card-shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md">Level 1</span>
+                            <span class="text-sm font-extrabold text-rose-600">${p1}%</span>
+                        </div>
+                        <h4 class="font-display font-bold text-sm text-navy-900">Belum Pernah Mendengar</h4>
+                        <p class="font-display font-extrabold text-2xl text-slate-800 mt-1">${c1.toLocaleString('id-ID')} <span class="text-xs font-normal text-slate-500">siswa</span></p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs card-shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-md">Level 2</span>
+                            <span class="text-sm font-extrabold text-amber-600">${p2}%</span>
+                        </div>
+                        <h4 class="font-display font-bold text-sm text-navy-900">Pernah Mendengar</h4>
+                        <p class="font-display font-extrabold text-2xl text-slate-800 mt-1">${c2.toLocaleString('id-ID')} <span class="text-xs font-normal text-slate-500">siswa</span></p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs card-shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase text-skybrand-600 bg-skybrand-50 px-2.5 py-0.5 rounded-md">Level 3</span>
+                            <span class="text-sm font-extrabold text-skybrand-600">${p3}%</span>
+                        </div>
+                        <h4 class="font-display font-bold text-sm text-navy-900">Sudah Mengetahui</h4>
+                        <p class="font-display font-extrabold text-2xl text-slate-800 mt-1">${c3.toLocaleString('id-ID')} <span class="text-xs font-normal text-slate-500">siswa</span></p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs card-shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold uppercase text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md">Level 4 (Maksimal)</span>
+                            <span class="text-sm font-extrabold text-emerald-600">${p4}%</span>
+                        </div>
+                        <h4 class="font-display font-bold text-sm text-navy-900">Sudah Memahami</h4>
+                        <p class="font-display font-extrabold text-2xl text-slate-800 mt-1">${c4.toLocaleString('id-ID')} <span class="text-xs font-normal text-slate-500">siswa</span></p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow">
+                        <h3 class="font-display font-bold text-base text-navy-900">Proporsi Kategori Pengetahuan Siswa</h3>
+                        <p class="text-xs text-slate-500 mb-4">Persentase berdasarkan filter pengamatan aktif (Pengamatan ${data.targetKnowObs})</p>
+                        <div class="relative h-64">
+                            <canvas id="chart-know-donut"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow">
+                        <h3 class="font-display font-bold text-base text-navy-900">Perbandingan Tingkat Pemahaman Berdasarkan Kelas</h3>
+                        <p class="text-xs text-slate-500 mb-4">Distribusi jumlah siswa tiap kategori pemahaman pada Kelas X, XI, dan XII</p>
+                        <div class="relative h-64">
+                            <canvas id="chart-know-class"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow">
+                    <h3 class="font-display font-bold text-base text-navy-900">Perkembangan Skor Pengetahuan Lintas 4 Kali Pengamatan</h3>
+                    <p class="text-xs text-slate-500 mb-4">Peningkatan dari pemetaan awal (Pengamatan 1) menuju pencapaian poin maksimal pada Pengamatan 2, 3, dan 4</p>
+                    <div class="relative h-60">
+                        <canvas id="chart-know-progression"></canvas>
+                    </div>
+                </div>
+            `;
+
+            const ctxDonut = document.getElementById('chart-know-donut');
+            if (ctxDonut) {
+                appState.charts.knowDonut = new Chart(ctxDonut, {
+                    type: 'doughnut',
+                    data: {
+                        labels: KNOWLEDGE_LEVELS.map(l => l.label),
+                        datasets: [{
+                            data: [c1, c2, c3, c4],
+                            backgroundColor: KNOWLEDGE_LEVELS.map(l => l.color),
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '62%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+
+            const ctxClass = document.getElementById('chart-know-class');
+            if (ctxClass) {
+                const levels = ['X', 'XI', 'XII'];
+                const datasets = KNOWLEDGE_LEVELS.map(kl => ({
+                    label: kl.label,
+                    backgroundColor: kl.color,
+                    borderRadius: 4,
+                    data: levels.map(lvl => {
+                        return data.students.filter(s => s.classLevel === lvl && (data.targetKnowObs === 1 ? s.knowledge[1] : 4) === kl.code).length;
+                    })
+                }));
+
+                appState.charts.knowClass = new Chart(ctxClass, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Kelas X (432)', 'Kelas XI (360)', 'Kelas XII (360)'],
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } }
+                        },
+                        scales: {
+                            x: { stacked: true, grid: { display: false } },
+                            y: { stacked: true, grid: { color: '#f1f5f9' } }
+                        }
+                    }
+                });
+            }
+
+            const ctxProg = document.getElementById('chart-know-progression');
+            if (ctxProg) {
+                const avgObs1 = data.totalStudents > 0
+                    ? Number((data.students.reduce((acc, s) => acc + ((s.knowledge[1] / 4) * 100), 0) / data.totalStudents).toFixed(1))
+                    : 0;
+
+                appState.charts.knowProg = new Chart(ctxProg, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Pengamatan 1 (Pemetaan Awal)', 'Pengamatan 2 (Poin Maksimal)', 'Pengamatan 3 (Poin Maksimal)', 'Pengamatan 4 (Poin Maksimal)'],
+                        datasets: [{
+                            label: 'Skor Pengetahuan Siswa (%)',
+                            data: [avgObs1, 100, 100, 100],
+                            backgroundColor: ['#0ea5e9', '#10b981', '#10b981', '#0f2342'],
+                            borderRadius: 8,
+                            maxBarThickness: 56
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }
+
+        /**
+         * ============================================================================
+         * HALAMAN 3–9: DETAIL MASING-MASING 7 KEBIASAAN ANAK INDONESIA HEBAT
+         * ============================================================================
+         */
+        function renderHabitDetailPage(container, data, habit) {
+            const hKey = habit.id;
+            const currentScore = data.habitAverages[hKey];
+            const trend = data.habitObsTrend[hKey];
+            const delta = Number((trend[3] - trend[0]).toFixed(1));
+            const deltaSign = delta >= 0 ? `+${delta}%` : `${delta}%`;
+
+            const activeObs = getActiveObservations();
+            const catCounts = [0, 0, 0, 0];
+            data.students.forEach(s => {
+                const pct = getStudentHabitPercentage(s, hKey, activeObs);
+                if (pct !== null) {
+                    if (pct >= 85) catCounts[0]++;
+                    else if (pct >= 70) catCounts[1]++;
+                    else if (pct >= 55) catCounts[2]++;
+                    else catCounts[3]++;
+                }
+            });
+
+            const classRanks = ['X', 'XI', 'XII']
+                .map(lvl => ({ level: lvl, score: data.habitByClass[lvl][hKey] || 0 }))
+                .filter(c => data.students.some(s => s.classLevel === c.level))
+                .sort((a, b) => b.score - a.score);
+            const bestClass = classRanks[0] || { level: '-', score: 0 };
+
+            container.innerHTML = `
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-14 h-14 rounded-2xl ${habit.bgSoft} ${habit.textCol} border ${habit.borderCol} flex items-center justify-center shrink-0">
+                            <i class="ph-duotone ${habit.icon} text-3xl"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-navy-900 text-gold-400">KEBIASAAN #${habit.number}</span>
+                                <span class="text-xs text-slate-500 font-medium">Bobot Skor Maksimum Instrumen: ${habit.maxScore} Poin (Ternormalisasi 100%)</span>
+                            </div>
+                            <h2 class="font-display font-extrabold text-xl sm:text-2xl text-navy-900 mt-1">${habit.name}</h2>
+                            <p class="text-xs sm:text-sm text-slate-600 mt-1">${habit.desc}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0 bg-slate-50 px-5 py-3.5 rounded-xl border border-slate-200">
+                        <div>
+                            <div class="text-[11px] font-bold uppercase text-slate-500">Persentase Pencapaian</div>
+                            <div class="font-display font-extrabold text-3xl text-navy-900">${currentScore}%</div>
+                        </div>
+                        <div class="pl-3 border-l border-slate-200">
+                            <div class="text-[11px] font-bold uppercase text-slate-500">Perkembangan (P1&rarr;P4)</div>
+                            <div class="font-display font-bold text-lg ${delta >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${deltaSign}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+                        <p class="text-xs font-semibold text-slate-500">Pengamatan 1 (Awal)</p>
+                        <p class="font-display font-extrabold text-2xl text-slate-800 mt-1">${trend[0]}%</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Baseline awal pemantauan</p>
+                    </div>
+                    <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+                        <p class="text-xs font-semibold text-slate-500">Pengamatan 4 (Akhir)</p>
+                        <p class="font-display font-extrabold text-2xl text-emerald-600 mt-1">${trend[3]}%</p>
+                        <p class="text-[11px] text-emerald-600 font-medium mt-0.5">Capaian pemantauan terkini</p>
+                    </div>
+                    <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+                        <p class="text-xs font-semibold text-slate-500">Tingkat Kelas Tertinggi</p>
+                        <p class="font-display font-extrabold text-2xl text-navy-900 mt-1">Kelas ${bestClass.level}</p>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Rata-rata capaian ${bestClass.score}%</p>
+                    </div>
+                    <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+                        <p class="text-xs font-semibold text-slate-500">Siswa Kategori Optimal (≥85%)</p>
+                        <p class="font-display font-extrabold text-2xl text-skybrand-600 mt-1">${catCounts[0].toLocaleString('id-ID')}</p>
+                        <p class="text-[11px] text-slate-500 mt-0.5">${data.totalStudents > 0 ? ((catCounts[0] / data.totalStudents) * 100).toFixed(1) : 0}% dari siswa terdata</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow">
+                        <h3 class="font-display font-bold text-base text-navy-900">${habit.distLabel}</h3>
+                        <p class="text-xs text-slate-500 mb-4">Proporsi jumlah siswa berdasarkan tingkat konsistensi</p>
+                        <div class="relative h-64">
+                            <canvas id="chart-habit-dist"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow">
+                        <h3 class="font-display font-bold text-base text-navy-900">Perbandingan & Perkembangan 4 Kali Pengamatan</h3>
+                        <p class="text-xs text-slate-500 mb-4">Evaluasi perubahan capaian dari Pengamatan 1 hingga Pengamatan 4</p>
+                        <div class="relative h-64">
+                            <canvas id="chart-habit-obs"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow">
+                        <h3 class="font-display font-bold text-base text-navy-900">Perbandingan Pencapaian Berdasarkan Tingkat Kelas</h3>
+                        <p class="text-xs text-slate-500 mb-4">Perbandingan persentase kebiasaan ${habit.name} pada Kelas X, XI, dan XII</p>
+                        <div class="relative h-60">
+                            <canvas id="chart-habit-class"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs card-shadow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2.5 mb-3">
+                                <div class="w-9 h-9 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center">
+                                    <i class="ph-bold ph-clipboard-text text-lg"></i>
+                                </div>
+                                <h3 class="font-display font-bold text-base text-navy-900">Kesimpulan & Rekomendasi Peningkatan</h3>
+                            </div>
+                            <div class="space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                                    <strong class="text-navy-900 block mb-1">Kesimpulan Analisis Data:</strong>
+                                    Kebiasaan <strong>${habit.name}</strong> mencatat rata-rata pencapaian <strong>${currentScore}%</strong> dengan tren perkembangan sebesar <strong>${deltaSign}</strong> dari Pengamatan 1 (${trend[0]}%) ke Pengamatan 4 (${trend[3]}%). Sebanyak <strong>${(catCounts[0] + catCounts[1]).toLocaleString('id-ID')} siswa</strong> telah berada pada kategori baik hingga sangat optimal.
+                                </div>
+                                <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80">
+                                    <strong class="text-amber-900 block mb-1">Rekomendasi Tindak Lanjut:</strong>
+                                    Fokuskan pendampingan wali kelas dan guru BK pada <strong>${catCounts[3].toLocaleString('id-ID')} siswa</strong> di kategori perlu pembinaan melalui pemantauan buku penghubung orang tua serta apresiasi rutin di kelas dengan capaian tertinggi (Kelas ${bestClass.level}).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const ctxDist = document.getElementById('chart-habit-dist');
+            if (ctxDist) {
+                appState.charts.habitDist = new Chart(ctxDist, {
+                    type: 'doughnut',
+                    data: {
+                        labels: habit.categories,
+                        datasets: [{
+                            data: catCounts,
+                            backgroundColor: ['#0f2342', habit.color, '#eab308', '#cbd5e1'],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+
+            const ctxObs = document.getElementById('chart-habit-obs');
+            if (ctxObs) {
+                appState.charts.habitObs = new Chart(ctxObs, {
+                    type: 'line',
+                    data: {
+                        labels: ['Pengamatan 1', 'Pengamatan 2', 'Pengamatan 3', 'Pengamatan 4'],
+                        datasets: [
+                            {
+                                label: `Perkembangan ${habit.name} (%)`,
+                                data: trend,
+                                borderColor: habit.color,
+                                backgroundColor: habit.color + '26',
+                                pointBackgroundColor: '#0f2342',
+                                pointRadius: 6,
+                                fill: true,
+                                tension: 0.3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#0f2342',
+                                callbacks: { label: ctx => `Capaian: ${ctx.parsed.y}%` }
+                            }
+                        },
+                        scales: {
+                            y: { min: 40, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            const ctxClass = document.getElementById('chart-habit-class');
+            if (ctxClass) {
+                appState.charts.habitClass = new Chart(ctxClass, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Kelas X', 'Kelas XI', 'Kelas XII'],
+                        datasets: [{
+                            label: `Capaian ${habit.name} (%)`,
+                            data: [
+                                data.habitByClass.X[hKey] || 0,
+                                data.habitByClass.XI[hKey] || 0,
+                                data.habitByClass.XII[hKey] || 0
+                            ],
+                            backgroundColor: ['#0ea5e9', '#eab308', '#0f2342'],
+                            borderRadius: 8,
+                            maxBarThickness: 54
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }
+
+        /**
+         * ============================================================================
+         * SISTEM NOTIFIKASI TOAST (PENGGANTI ALERT)
+         * ============================================================================
+         */
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const styles = {
+                success: 'bg-navy-900 text-white border-emerald-400',
+                warning: 'bg-navy-900 text-white border-amber-400',
+                error: 'bg-rose-900 text-white border-rose-400',
+                info: 'bg-navy-900 text-white border-gold-400'
+            };
+
+            const icons = {
+                success: 'ph-check-circle text-emerald-400',
+                warning: 'ph-warning text-amber-400',
+                error: 'ph-x-circle text-rose-400',
+                info: 'ph-info text-gold-400'
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl border-l-4 text-xs sm:text-sm font-medium max-w-sm transition-all duration-300 ${styles[type] || styles.info}`;
+            toast.innerHTML = `
+                <i class="ph-fill ${icons[type] || icons.info} text-lg shrink-0"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Inisialisasi saat halaman selesai dimuat
+        window.addEventListener('DOMContentLoaded', () => {
+            generateBaselinePopulationData();
+            renderDashboard();
+        });
+    </script>
+</body>
+</html>
